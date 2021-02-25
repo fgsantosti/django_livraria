@@ -1117,15 +1117,15 @@ Depois disso vamos criar na pasta `livriaria/templates/livraria/` o arquivo `det
 
 ## Formulários do Django
 
-Por último, queremos uma forma legal de adicionar e editar as postagens do nosso blog. A ferramenta de administração do Django é legal, mas é um pouco difícil de personalizar e de deixar mais bonita. Com **formulários**, temos poder absoluto sobre nossa interface - podemos fazer quase tudo que pudermos imaginar!
+Por último, queremos uma forma legal de adicionar e editar os livros casdastrados no nosso sistema. A ferramenta de administração do Django é legal, mas é um pouco difícil de personalizar e de deixar mais bonita. Com **formulários**, temos poder absoluto sobre nossa interface - podemos fazer quase tudo que pudermos imaginar!
 
 Uma coisa legal do Django é que podemos tanto criar um formulário do zero, como criar um ModelForm que salva o resultado do formulário em um determinado modelo.
 
 É exatamente isso que queremos fazer: criar um formulário para o nosso modelo `Livro`. 
 
-Ref. https://docs.djangoproject.com/en/3.1/topics/forms/
-Ref. https://docs.djangoproject.com/en/3.1/topics/forms/modelforms/
-Ref. https://tutorial.djangogirls.org/pt/django_forms/
+    Ref. https://docs.djangoproject.com/en/3.1/topics/forms/
+    Ref. https://docs.djangoproject.com/en/3.1/topics/forms/modelforms/
+    Ref. https://tutorial.djangogirls.org/pt/django_forms/
 
 Precisamos criar um arquivo com o nome `forms.py` dentro da pasta `livraria`. 
 
@@ -1187,6 +1187,8 @@ No arquivo `livraria/templates/livraria/base.html` em um dos nossos links do men
 
 
 ```python
+'''código omitido'''
+
 <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">Livraria Django</a>
@@ -1212,6 +1214,8 @@ No arquivo `livraria/templates/livraria/base.html` em um dos nossos links do men
     </div>
   </div>
 </nav>
+
+'''código omitido'''
 ```
 
 Aproveitando a oportunidade vamos adcionar também no menu um link para retornamos a página inicial da nossa aplicação que é a lista de livros.
@@ -1221,6 +1225,159 @@ Aproveitando a oportunidade vamos adcionar também no menu um link para retornam
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="{% url 'listar_livros' %}">Home</a>
         </li>
+```
+
+### Criando a nova URL 
+
+Vamos abrir o `livraria/urls.py` e adicionar a nova rota do nosso sistema.
+
+
+```python
+from django.urls import path
+from . import views #arquivo views que ainda não utilizamos
+
+urlpatterns = [
+    path('', views.listar_livros, name='listar_livros'),
+    path('listar_categorias', views.listar_categorias, name='listar_categorias'), 
+    path('listar_autores', views.listar_autores, name='listar_autores'), 
+    path('livro/<int:id>/', views.detalhar_livro, name='detalhar_livro'), 
+    path('livro/new/', views.cadastrar_livro, name='cadastrar_livro'), #nova url
+]
+```
+
+### Criando a view cadastrar_livro
+
+Vamos abrir o arquivo `livraria/views.py` e adicionar a nova função no arquivo.
+
+
+```python
+from django.shortcuts import render, get_object_or_404
+from livraria.models import Autor, Categoria, Livro
+from livraria.forms import LivroForm # novo import realizado
+
+#função cadastrar livro
+def cadastrar_livro(request):
+    form = LivroForm()
+    return render(request, 'livraria/editar_livro.html', {'form': form})
+
+```
+
+### Criando a  Template editar_livro.html
+
+Vamos criar o arquivo `livraria/templates/livraria/editar_livro.html` que deve ficar da seguinte forma. 
+
+Estamos colocando o nome `editar_livro.html` por que iremos utilizar o formulário para fazer as duas funções, a para cadastrar e para editar um livro. 
+
+Ref. https://docs.djangoproject.com/en/3.1/ref/csrf/
+
+
+```python
+{% extends 'livraria/base.html' %}
+
+{% block content %}
+    <h2>Novo livro</h2>
+    <form method="POST" class="table" enctype="multipart/form-data">
+    {% csrf_token %}
+        <div class="form-group">
+            {{ form.as_p }}
+         </div>
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>
+{% endblock %}
+```
+
+### Salvando os dados do formulário
+
+Vamos abrir o arquivo `livraria/views.py` e alterar a nossa nova função no arquivo.
+
+
+Ref. https://docs.djangoproject.com/en/3.1/topics/http/shortcuts/
+
+
+```python
+from django.shortcuts import render, get_object_or_404, redirect
+from livraria.models import Autor, Categoria, Livro
+from livraria.forms import LivroForm
+
+def cadastrar_livro(request):
+    if request.method == "POST":
+        form = LivroForm(request.POST, request.FILES)
+        if form.is_valid():
+            livro = form.save(commit=False)
+            form.save()
+            return redirect('detalhar_livro', id=livro.id)
+    else:
+        form = LivroForm()
+    return render(request, 'livraria/cadastrar_livro.html', {'form': form})
+
+
+'''código omitido'''
+```
+
+Caso você queira realizar uma restrição para salvar apenas imagens do livro no formato .png e .jpeg podemos fazer a seguinte melhoria no código. Para isso vamos utilizar a biblioteca imgdr que ficará responsável por pegar o formato da imagem. 
+
+
+```python
+from django.shortcuts import render, get_object_or_404, redirect
+from livraria.models import Autor, Categoria, Livro
+from livraria.forms import LivroForm
+import imghdr #biblioteca nova
+
+def cadastrar_livro(request):
+    if request.method == "POST":
+        form = LivroForm(request.POST, request.FILES)
+        if form.is_valid():
+            livro = form.save(commit=False)
+            img = request.FILES
+            dados_img = imghdr.what(img['imagem'])
+            if dados_img == 'png' or dados_img == 'jpeg':
+                form.save()
+                return redirect('detalhar_livro', id=livro.id)
+            else:
+                 form = LivroForm()
+                return render(request, 'livraria/cadastrar_livro.html', {'form': form})             
+    else:
+        form = LivroForm()
+    return render(request, 'livraria/cadastrar_livro.html', {'form': form})
+```
+
+### Editando as informações do um livro
+
+
+```python
+{% extends 'livraria/base.html' %}
+{% block content %}
+    <table class="table">
+        {% for livro in livros %}
+            <tr>
+                <td>
+                    Nome: {{ livro.nome }}<br/>
+                    Código: {{ livro.codigo }}<br/>
+                    Ano: {{ livro.ano }}<br/>
+                    Valor: {{ livro.valor }}<br/>
+                    <a href="{% url 'detalhar_livro' id=livro.id %}">
+                        <img height="300" width="200" src="{{ livro.imagem.url }}">
+                    </a>
+                    <br/>
+                    Autores: <br/>
+                    {% for nome in livro.autor.all %}
+                        {{ nome }}<br/>
+                    {% endfor %}
+                </td>
+                <td>
+                    <a class="btn btn-default" href="{% url 'detalhar_livro' id=livro.id %}">
+                        <button type="button" class="btn btn-danger">Editar</button>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table> 
+{% endblock %}
+```
+
+
+```python
+
 ```
 
 
