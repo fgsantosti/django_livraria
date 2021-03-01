@@ -1034,7 +1034,7 @@ O arquivo `livraria/templates/livraria/listar_livros.html` fica agora da seguint
 
 ## Detalhando as informações sobre os Livros
 
-Vamos começar com a adição de um link dentro do arquivo livraria/templates/livraria/listar)livros.html. Neste momento ele deve se parecer com: Abra-o no editor de código e, até agora, deve ficar assim:
+Vamos começar com a adição de um link dentro do arquivo livraria/templates/livraria/listar_livros.html. Neste momento ele deve se parecer com: Abra-o no editor de código e, até agora, deve ficar assim:
 
 
 ```python
@@ -1308,7 +1308,7 @@ def cadastrar_livro(request):
             return redirect('detalhar_livro', id=livro.id)
     else:
         form = LivroForm()
-    return render(request, 'livraria/cadastrar_livro.html', {'form': form})
+    return render(request, 'livraria/editar_livro.html', {'form': form})
 
 
 '''código omitido'''
@@ -1335,13 +1335,15 @@ def cadastrar_livro(request):
                 return redirect('detalhar_livro', id=livro.id)
             else:
                  form = LivroForm()
-                return render(request, 'livraria/cadastrar_livro.html', {'form': form})             
+                return render(request, 'livraria/editar_livro.html', {'form': form})             
     else:
         form = LivroForm()
-    return render(request, 'livraria/cadastrar_livro.html', {'form': form})
+    return render(request, 'livraria/editar_livro.html', {'form': form})
 ```
 
 ### Editando as informações do um livro
+
+Vamos começar com a adição de um link dentro do arquivo `livraria/templates/livraria/listar_livros.html`. Neste momento ele deve se parecer com: Abra-o no editor de código e deixe ele dessa forma:
 
 
 ```python
@@ -1365,7 +1367,7 @@ def cadastrar_livro(request):
                     {% endfor %}
                 </td>
                 <td>
-                    <a class="btn btn-default" href="{% url 'detalhar_livro' id=livro.id %}">
+                    <a class="btn btn-default" href="{% url 'editar_livro' id=livro.id %}">
                         <button type="button" class="btn btn-danger">Editar</button>
                     </a>
                 </td>
@@ -1375,12 +1377,55 @@ def cadastrar_livro(request):
 {% endblock %}
 ```
 
+### Criando a nova URL editar_livro
+
+Vamos abrir o `livraria/urls.py` e adicionar a nova rota do nosso sistema.
+
 
 ```python
+from django.urls import path
+from . import views #arquivo views que ainda não utilizamos
 
+urlpatterns = [
+    path('', views.listar_livros, name='listar_livros'),
+    path('listar_categorias', views.listar_categorias, name='listar_categorias'), 
+    path('listar_autores', views.listar_autores, name='listar_autores'), 
+    path('livro/<int:id>/', views.detalhar_livro, name='detalhar_livro'), 
+    path('livro/new/', views.cadastrar_livro, name='cadastrar_livro'), 
+    path('livro/editar/<int:id>/', views.editar_livro, name='editar_livro'),#nova url
+]
 ```
 
+### Criando a view cadastrar_livro
+
+Vamos abrir o arquivo `livraria/views.py` e adicionar a nova função no arquivo.
+
 
 ```python
+from django.shortcuts import render, get_object_or_404, redirect
+from livraria.models import Autor, Categoria, Livro
+from livraria.forms import LivroForm
 
+def editar_livro(request, id):
+    livro = get_object_or_404(Livro, pk=id)
+    if request.method == "POST":
+        form = LivroForm(request.POST, request.FILES, instance=livro)
+        if form.is_valid():
+            livro = form.save(commit=False)
+            form.save()
+            return redirect('detalhar_livro', id=livro.id)
+    else:
+        form = LivroForm(instance=livro)
+    return render(request, 'livraria/editar_livro.html', {'form': form})
+
+
+
+'''código omitido'''
+```
+
+Agora é startar o servidor e vermos os resultados. 
+
+
+```python
+python manage.py runserver #startando o servidor
 ```
