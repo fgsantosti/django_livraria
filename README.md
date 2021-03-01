@@ -1377,7 +1377,7 @@ Vamos começar com a adição de um link dentro do arquivo `livraria/templates/l
 {% endblock %}
 ```
 
-### Criando a nova URL editar_livro
+#### Criando a nova URL editar_livro
 
 Vamos abrir o `livraria/urls.py` e adicionar a nova rota do nosso sistema.
 
@@ -1396,7 +1396,7 @@ urlpatterns = [
 ]
 ```
 
-### Criando a view cadastrar_livro
+#### Criando a view cadastrar_livro
 
 Vamos abrir o arquivo `livraria/views.py` e adicionar a nova função no arquivo.
 
@@ -1428,4 +1428,58 @@ Agora é startar o servidor e vermos os resultados.
 
 ```python
 python manage.py runserver #startando o servidor
+```
+
+### Buscando livros na livraria
+
+Vamos começar com a adição de um link dentro do arquivo `livraria/templates/livraria/base.html`. Neste momento ele deve se parecer com: Abra-o no editor de código e deixe ele dessa forma:
+
+
+```python
+'''código omitido'''
+<form class="d-flex" action="{% url 'buscar_livro' %}" method="POST">
+      {% csrf_token %}
+        <input name="infor" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
+'''código omitido'''
+```
+
+#### Criando a nova URL buscar_livro
+
+Vamos abrir o `livraria/urls.py` e adicionar a nova rota do nosso sistema.
+
+
+```python
+from django.urls import path
+from . import views #arquivo views que ainda não utilizamos
+
+urlpatterns = [
+    path('', views.listar_livros, name='listar_livros'),
+    path('listar_categorias', views.listar_categorias, name='listar_categorias'), 
+    path('listar_autores', views.listar_autores, name='listar_autores'), 
+    path('livro/<int:id>/', views.detalhar_livro, name='detalhar_livro'), 
+    path('livro/novo/', views.cadastrar_livro, name='cadastrar_livro'),
+    path('livro/editar/<int:id>/', views.editar_livro, name='editar_livro'),
+    path('buscar_livro', views.buscar_livro, name='buscar_livro'),#nova url
+
+]
+```
+
+#### Criando a view buscar_livro
+
+Vamos abrir o arquivo `livraria/views.py` e adicionar a nova função no arquivo.
+
+
+```python
+from django.shortcuts import render, get_object_or_404, redirect
+from livraria.models import Autor, Categoria, Livro
+from livraria.forms import LivroForm 
+
+def buscar_livro(request):
+    infor = request.POST['infor']
+    livros = Livro.objects.filter(nome__contains=infor)
+    return render(request, 'livraria/listar_livros.html', {'livros':livros})
+
+'''código omitido'''
 ```
