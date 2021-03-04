@@ -1034,7 +1034,7 @@ O arquivo `livraria/templates/livraria/listar_livros.html` fica agora da seguint
 
 ## Detalhando as informações sobre os Livros
 
-Vamos começar com a adição de um link dentro do arquivo livraria/templates/livraria/listar_livros.html. Neste momento ele deve se parecer com: Abra-o no editor de código e, até agora, deve ficar assim:
+Vamos começar com a edição de um link dentro do arquivo livraria/templates/livraria/listar_livros.html. Neste momento ele deve se parecer com: Abra-o no editor de código e, até agora, deve ficar assim:
 
 
 ```python
@@ -1343,7 +1343,7 @@ def cadastrar_livro(request):
 
 ### Editando as informações do um livro
 
-Vamos começar com a adição de um link dentro do arquivo `livraria/templates/livraria/listar_livros.html`. Neste momento ele deve se parecer com: Abra-o no editor de código e deixe ele dessa forma:
+Vamos começar com a edição de um link dentro do arquivo `livraria/templates/livraria/listar_livros.html`. Neste momento ele deve se parecer com: Abra-o no editor de código e deixe ele dessa forma:
 
 
 ```python
@@ -1432,7 +1432,7 @@ python manage.py runserver #startando o servidor
 
 ### Buscando livros na livraria
 
-Vamos começar com a adição de um link dentro do arquivo `livraria/templates/livraria/base.html`. Neste momento ele deve se parecer com: Abra-o no editor de código e deixe ele dessa forma:
+Vamos começar com a edição de um link dentro do arquivo `livraria/templates/livraria/base.html`. Abra-o no editor de código e deixe ele dessa forma:
 
 
 ```python
@@ -1481,5 +1481,294 @@ def buscar_livro(request):
     livros = Livro.objects.filter(nome__contains=infor)
     return render(request, 'livraria/listar_livros.html', {'livros':livros})
 
+'''código omitido'''
+```
+
+## Login e logout do sistema livraria
+
+Vamos implementar o melhor sistema de segurança ao sistema livraria. O primeiro arquivo que iremos modificar é o `livraria/templates/livraria/base.html`. Abra-o no editor de código e deixe ele dessa forma:
+
+
+```python
+'''código omitido''' 
+    <form class="d-flex" action="{% url 'buscar_livro' %}" method="POST">
+      {% csrf_token %}
+        <input name="infor" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+      <ul class="nav justify-content-end">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{% url 'page_login' %}">Login</a>
+        </li>
+      </ul>
+'''código omitido'''
+```
+
+### Criando a nova URL page_login
+
+Vamos abrir o `livraria/urls.py` e adicionar a nova rota do nosso sistema.
+
+
+```python
+from django.urls import path
+from . import views #arquivo views que ainda não utilizamos
+
+urlpatterns = [
+    path('', views.listar_livros, name='listar_livros'),
+    path('listar_categorias', views.listar_categorias, name='listar_categorias'), 
+    path('listar_autores', views.listar_autores, name='listar_autores'), 
+    path('livro/<int:id>/', views.detalhar_livro, name='detalhar_livro'), 
+    path('livro/novo/', views.cadastrar_livro, name='cadastrar_livro'),
+    path('livro/editar/<int:id>/', views.editar_livro, name='editar_livro'),
+    path('buscar_livro', views.buscar_livro, name='buscar_livro'),
+    #rotas do login e logout
+    path('page_login', views.page_login, name='page_login'),
+]
+```
+
+### Criando a view page_login
+
+Vamos abrir o arquivo `livraria/views.py` e adicionar a nova função no arquivo. Essa função irá redirecionar o usuário do sistema para a página de login, onde iremos ter o fomulário para verificar a autenticação. 
+
+
+```python
+'''código omitido'''
+
+def page_login(request):
+    return render(request, 'livraria/login.html',{})
+
+'''código omitido'''
+```
+
+### Criando o formulário de login
+
+Bem pessoal agora vamos criar o formulário de login, onde o usuário terá que colocar as informações de cadastro dele, para o nosso login utilizaremos o username e o password do usuário. 
+
+
+
+```python
+{% extends 'livraria/base.html' %}
+{% block content %}
+    <form action="{% url 'autenticar_usuario' %}" method="post">
+    {% csrf_token %}
+        <div class="mb-3" >
+            <label for="exampleInputEmail1" class="form-label">Username</label>
+            <input name="username" type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+        </div>
+        <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Password</label>
+            <input name="password" type="password" class="form-control" id="exampleInputPassword1">
+        </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+{% endblock %}
+```
+
+### Criando a rota para autenticação do usuário
+
+Nesse momento iremos criar a rota de autenticação do usuário ao sistema, essa rota redirecionará o os dados do usuário para a nossa função que teremos no `view.py` chamada de `autenticar_usuario`. 
+
+
+```python
+from django.urls import path
+from . import views #arquivo views que ainda não utilizamos
+
+urlpatterns = [
+    path('', views.listar_livros, name='listar_livros'),
+    path('listar_categorias', views.listar_categorias, name='listar_categorias'), 
+    path('listar_autores', views.listar_autores, name='listar_autores'), 
+    path('livro/<int:id>/', views.detalhar_livro, name='detalhar_livro'), 
+    path('livro/novo/', views.cadastrar_livro, name='cadastrar_livro'),
+    path('livro/editar/<int:id>/', views.editar_livro, name='editar_livro'),
+    path('buscar_livro', views.buscar_livro, name='buscar_livro'),
+    #rotas do login e logout
+    path('page_login', views.page_login, name='page_login'),
+    path('autenticar_usuario', views.autenticar_usuario, name='autenticar_usuario'),
+]
+```
+
+### Criando a view autenticar_usuario
+
+Vamos abrir o arquivo `livraria/views.py` e adicionar a nova função no arquivo. Essa função irá verificar os dados do usuário, se ele realmente está cadastrado no sistema utilizando a função `authenticate` e `login`. 
+
+Resumidamente a função `authenticate` ela realiza uma busca no banco no model User e verifica se os dados do usuário são válidos. A função `login` você irá apontar esse usuário para sessão atual do navegador para o sistema.
+
+Ref. https://docs.djangoproject.com/en/3.1/topics/auth/default/
+
+
+```python
+from django.shortcuts import render, get_object_or_404, redirect
+from livraria.models import Autor, Categoria, Livro
+from livraria.forms import LivroForm 
+from django.contrib.auth import authenticate, login, logout
+
+def autenticar_usuario(request):
+    username = request.POST['username']
+    password = request.POST['password']
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        login(request, user)
+        livros = Livro.objects.all()
+        return render(request, 'livraria/listar_livros.html', {'livros':livros})
+    else:
+        return render(request, 'livraria/login.html',{})
+
+'''código omitido'''
+```
+
+### Inserindo segurança na nossa lista de livros
+
+Vamos começar com a edição do arquivo `livraria/templates/livraria/listar_livros.html`. Vamos colocar `if user.is_authenticated` que verificará se o usuário destá em autenticado em uma sessão no navegador. Abra-o no editor de código e deixe ele dessa forma:
+
+
+```python
+{% extends 'livraria/base.html' %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <h3>Hello my friend {{user.username}}</h3>
+    {% else %}
+        <p>Você precisa realiar o login</p>
+    {% endif %}
+    <table class="table">
+        {% for livro in livros %}
+            <tr>
+                <td>
+                    Nome: {{ livro.nome }}<br/>
+                    Código: {{ livro.codigo }}<br/>
+                    Ano: {{ livro.ano }}<br/>
+                    Valor: {{ livro.valor }}<br/>
+                    <a href="{% url 'detalhar_livro' id=livro.id %}">
+                        <img height="300" width="200" src="{{ livro.imagem.url }}">
+                    </a>
+                    <br/>
+                    Autores: <br/>
+                    {% for nome in livro.autor.all %}
+                        {{ nome }}<br/>
+                    {% endfor %}
+                </td>
+                {% if user.is_authenticated %}
+                <td>
+                    <a class="btn btn-default" href="{% url 'editar_livro' id=livro.id %}">
+                        <button type="button" class="btn btn-danger">Editar</button>
+                    </a>
+                </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table> 
+{% endblock %}
+
+```
+
+### Criando o logout
+
+
+
+
+```python
+{% extends 'livraria/base.html' %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <h3>Hello my friend {{user.username}}</h3>
+        <a href="{% url 'logout_usuario' %}">Sair</a>
+    {% else %}
+        <p>Você precisa realiar o login</p>
+    {% endif %}
+    <table class="table">
+        {% for livro in livros %}
+            <tr>
+                <td>
+                    Nome: {{ livro.nome }}<br/>
+                    Código: {{ livro.codigo }}<br/>
+                    Ano: {{ livro.ano }}<br/>
+                    Valor: {{ livro.valor }}<br/>
+                    <a href="{% url 'detalhar_livro' id=livro.id %}">
+                        <img height="300" width="200" src="{{ livro.imagem.url }}">
+                    </a>
+                    <br/>
+                    Autores: <br/>
+                    {% for nome in livro.autor.all %}
+                        {{ nome }}<br/>
+                    {% endfor %}
+                </td>
+                {% if user.is_authenticated %}
+                <td>
+                    <a class="btn btn-default" href="{% url 'editar_livro' id=livro.id %}">
+                        <button type="button" class="btn btn-danger">Editar</button>
+                    </a>
+                </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table> 
+{% endblock %}
+```
+
+### Criando a nova URL logout_usuario
+
+Vamos abrir o `livraria/urls.py` e adicionar a nova rota do nosso sistema. Essa nota irá redirecionar para a função de logout do sistema, onde será excluído os dados de sessão do usuário do navegador.
+
+
+```python
+
+from django.urls import path
+from . import views #arquivo views que ainda não utilizamos
+
+urlpatterns = [
+    path('', views.listar_livros, name='listar_livros'),
+    path('listar_categorias', views.listar_categorias, name='listar_categorias'), 
+    path('listar_autores', views.listar_autores, name='listar_autores'), 
+    path('livro/<int:id>/', views.detalhar_livro, name='detalhar_livro'), 
+    path('livro/novo/', views.cadastrar_livro, name='cadastrar_livro'),
+    path('livro/editar/<int:id>/', views.editar_livro, name='editar_livro'),
+    path('buscar_livro', views.buscar_livro, name='buscar_livro'),
+    #rotas do login e logout
+    path('page_login', views.page_login, name='page_login'),
+    path('autenticar_usuario', views.autenticar_usuario, name='autenticar_usuario'),
+    path('logout_usuario', views.logout_usuario, name='logout_usuario'),
+]
+```
+
+### Criando a view logout_usuario
+
+Vamos abrir o arquivo `livraria/views.py` e adicionar a nova função no arquivo. Essa função é onde será excluído os dados de sessão do usuário do navegador, ele será desconectado do sistema.
+
+Ref. https://docs.djangoproject.com/en/3.1/topics/auth/default/
+
+
+```python
+from django.shortcuts import render, get_object_or_404, redirect
+from livraria.models import Autor, Categoria, Livro
+from livraria.forms import LivroForm 
+from django.contrib.auth import authenticate, login, logout
+
+def logout_usuario(request):
+    logout(request)
+    return render(request, 'livraria/login.html',{})
+
+'''código omitido'''
+```
+
+### Melhorando o visual do sistema de login e logout 
+
+Nessa parte deixaremos o nosso sistema um pouco mais elegante colocando os dois botões de `Login` e `Sair` no menu principal do sistema e cada um sendo apresentando ao usuário no momento correto. 
+
+
+```python
+'''código omitido'''  
+    <form class="d-flex" action="{% url 'buscar_livro' %}" method="POST">
+      {% csrf_token %}
+        <input name="infor" class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+      </form>
+      <ul class="nav justify-content-end">
+        <li class="nav-item">
+        {% if user.is_authenticated %}
+          <a class="nav-link active" aria-current="page" href="{% url 'logout_usuario' %}">Sair</a>
+        {% else %}
+          <a class="nav-link active" aria-current="page" href="{% url 'page_login' %}">Login</a>
+        {% endif %}
+        </li>
+      </ul>
 '''código omitido'''
 ```
