@@ -49,11 +49,30 @@ sudo apt install -y python3-venv
 sudo apt install python3-virtualenv
 ```
 
+Instalando no MacOS
+
+```python
+sudo pip uninstall virtualenv
+
+sudo -H pip install virtualenv
+```
+
+
 Criando seu ambiente virtual. Vamos chamá-lo de generic env
 
 
 ```python
 virtualenv env
+```
+
+Criando seu ambiente virtual no MacOS
+
+```python
+virtualenv -p python3 <desired-path>
+
+
+virtualenv -p python3 env
+
 ```
 
 Ative o ambiente virtual 
