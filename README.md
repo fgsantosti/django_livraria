@@ -65,6 +65,12 @@ Criando seu ambiente virtual. Vamos chamá-lo de generic env
 virtualenv env
 ```
 
+Criando o seu ambiente virtual no Windows 
+
+´´´python
+python -m virtualenv env
+´´´
+
 Criando seu ambiente virtual no MacOS
 
 ```python
