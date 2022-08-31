@@ -143,7 +143,24 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 ```
 ### Configurações para o Banco de Dados MySQL
 
+```
+sudo apt-get update
+sudo apt-get install mysql-server
+sudo apt-get install mysql-client
+
+#entrar no banco de dados mysql
+mysql -u root -p
+
+#mostrar todos os bancos criados
+SHOW DATABASES;
+
+#criar um banco de dados
+CREATE DATABASE livraria;
+
+```
+
 Dado que você tenha instalando o bando de dados, você deve realizar a seguinte configuração. 
+
 ```
 DATABASES = {
     'default': {
