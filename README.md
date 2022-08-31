@@ -134,6 +134,10 @@ Vá até o final do arquivo e, logo abaixo da linha com STATIC_URL, adicione uma
 
 
 ```python
+import os
+
+ ...
+ 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 ```
