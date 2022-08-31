@@ -182,6 +182,16 @@ Did you install mysqlclient?
  
  Solução
 ```
+sudo apt-get install libpq-dev
+sudo apt-get install libpq-dev python-dev
+
+pip install auto-py-to-exe
+
+sudo apt-get install libmysqlclient-dev
+#https://stackoverflow.com/questions/5178292/pip-install-mysql-python-fails-with-environmenterror-mysql-config-not-found
+
+pip install -U setuptools
+
 pip install mysqclient
 ```
 Referencia. https://docs.djangoproject.com/en/4.1/ref/databases/
