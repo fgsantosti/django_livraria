@@ -141,6 +141,33 @@ import os
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 ```
+### Configurações para o Banco de Dados MySQL
+
+Dado que você tenha instalando o bando de dados, você deve realizar a seguinte configuração. 
+...
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'livraria',
+        'USER': 'root',
+        'PASSWORD': '12345',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
+}
+ ...
+ 
+ Erro
+ ...
+django.core.exceptions.ImproperlyConfigured: Error loading MySQLdb module.
+Did you install mysqlclient?
+ ...
+ 
+ Solução
+  ...
+pip install mysqclient
+ ...
+
 
 ### Criando um banco de dados para a livraria 
 
