@@ -167,6 +167,7 @@ Did you install mysqlclient?
 ```
 pip install mysqclient
 ```
+Referencia. https://docs.djangoproject.com/en/4.1/ref/databases/
 
 
 ### Criando um banco de dados para a livraria 
