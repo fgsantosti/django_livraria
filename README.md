@@ -357,6 +357,46 @@ Para fazer login, você precisa criar um `superusuário (superuser)` - uma conta
 python manage.py createsuperuser
 ```
 
+### Personalizando o Django Admin
+
+A página de administração padrão do Django é ótima e é tudo o que precisamos para nossos projetos, mas às vezes podemos querer expandir o que a interface de administração padrão pode fazer. Temos muitas ferramentas no Django para personalizá-lo de acordo com nossas necessidades.
+
+Vamos abrir novamente o arquivo `livraria/admin.py` no editor de código e acrescentamos os códigos seguintes. 
+
+
+Por padrão, o administrador exibirá os campos na visualização de detalhes na mesma ordem definida no modelo. Mas podemos mudar isso fazendo algumas edições no arquivo admin.py sem ir para models.py e mudar a ordem dos diferentes campos.
+
+```
+from django.contrib import admin
+from .models import Categoria, Autor, Livro
+
+
+class LivroAdmin(admin.ModelAdmin):
+
+    list_display = ['nome', 'valor', 'view_name_categoria', 'get_autores']
+    search_fields = ['nome'] #pesquisa por nome
+    list_filter = ['ano'] #filtrar por ano
+
+    @admin.display(ordering='view_name_categoria')
+    def view_name_categoria(self, obj):
+        return obj.categoria.nome
+
+    
+    def get_autores(self, obj):
+        for autor in obj.autor.all():
+            return autor.nome
+        #return [autor.nome for autor in obj.autor.all()]
+
+
+
+admin.site.register(Categoria)
+admin.site.register(Autor)
+admin.site.register(Livro, LivroAdmin)
+
+```
+
+Ref. https://docs.djangoproject.com/pt-br/4.1/ref/contrib/admin/
+
 Quando for solicitado, insira seu nome de usuário (letras minúsculas, sem espaços), e-mail e senha. **Não se preocupe por não conseguir ver a senha que está digitando - é assim mesmo**. Digite a senha e aperte a tecla enter para continuar. 
 
 Depois disso, volte ao seu navegador. Faça login com as credenciais de superusuário que você escolheu; você deverá ver o painel de controle de administração do Django.
