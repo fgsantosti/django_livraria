@@ -804,7 +804,7 @@ def listar_autores(request):
     return render(request, 'livraria/listar_autores.html', {'autores':autores})
 
 def listar_livros(request):
-    livros = Livro.objscts.all()
+    livros = Livro.objects.all()
     return render(request, 'livraria/listar_livros.html', {'livros':livros})
 
 ```
