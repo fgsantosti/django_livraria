@@ -138,7 +138,7 @@ import os
 
  ...
  
-STATIC_URL = '/static/'
+STATIC_URL = '/static/' #em ambiente de desenvolvimento windows utitlizar apenas 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 ```
 ### Configurações para o Banco de Dados MySQL
@@ -192,7 +192,7 @@ sudo apt-get install libmysqlclient-dev
 
 pip install -U setuptools
 
-pip install mysqclient
+pip install mysqlclient
 ```
 Referencia. https://docs.djangoproject.com/en/4.1/ref/databases/
 
@@ -804,7 +804,7 @@ def listar_autores(request):
     return render(request, 'livraria/listar_autores.html', {'autores':autores})
 
 def listar_livros(request):
-    livros = Livro.objscts.all()
+    livros = Livro.objects.all()
     return render(request, 'livraria/listar_livros.html', {'livros':livros})
 
 ```
