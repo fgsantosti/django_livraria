@@ -67,8 +67,14 @@ virtualenv env
 
 Criando o seu ambiente virtual no Windows 
 
+```python 
+python -m venv env
+```
+
+Ative o ambiente virtual
+
 ```python
-python -m virtualenv env
+.\env\Scripts\Activate.ps1
 ```
 
 Criando seu ambiente virtual no MacOS
