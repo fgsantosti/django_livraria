@@ -74,6 +74,8 @@ python -m venv env
 Ative o ambiente virtual
 
 ```python
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
 .\env\Scripts\Activate.ps1
 ```
 
